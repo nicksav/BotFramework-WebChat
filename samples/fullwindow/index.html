@@ -1,26 +1,11 @@
-﻿<!DOCTYPE html>
-<!--
-  This is a sample HTML file which shows how to embed a full-window instance of WebChat.
-  1. Build the project: "npm run build"
-  2. Start a web server: "npm run start"
-  3. Aim your browser at "http://localhost:8000/samples?[parameters as listed below]"
-
-  For ease of testing, several parameters can be set in the query string:
-    * s = Direct Line secret, or
-    * t = Direct Line token (obtained by calling Direct Line's Generate Token)
-    * domain = optionally, the URL of an alternate Direct Line endpoint
-    * webSocket = set to 'true' to use WebSocket to receive messages (currently defaults to false)
-    * userid, username = id (and optionally name) of bot user
-    * botid, botname = id (and optionally name) of bot
--->
-<html>
+﻿<html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Bot Chat</title>
 
-    <link href="../../botchat.css" rel="stylesheet" />
-    <link href="../../botchat-fullwindow.css" rel="stylesheet" />
+    <link href="botchat.css" rel="stylesheet" />
+    <link href="botchat-fullwindow.css" rel="stylesheet" />
 
     <style>
       html, body {
@@ -33,7 +18,8 @@
   </head>
   <body>
     <div id="BotChatGoesHere"></div>
-    <script src="../../botchat.js"></script>
+    <script src="CognitiveServices.js"></script>
+    <script src="botchat.js"></script>
     <script>
       const params = BotChat.queryParams(location.search);
 
@@ -49,19 +35,30 @@
 
       window['botchatDebug'] = params['debug'] && params['debug'] === 'true';
 
+      const speechOptions = {
+        speechRecognizer: new CognitiveServices.SpeechRecognizer({ subscriptionKey: '1d11efee1b9a4e499f18c77feb759b48' }),
+        speechSynthesizer: new CognitiveServices.SpeechSynthesizer({
+          gender: CognitiveServices.SynthesisGender.Female,
+          subscriptionKey: '1d11efee1b9a4e499f18c77feb759b48',
+          voiceName: 'Microsoft Server Speech Text to Speech Voice (en-US, JessaRUS)'
+        })
+      };
+
+      const botConnection = new BotChat.DirectLine({
+        domain: params['domain'],
+        secret: params['s'],
+        token: params['t'],
+        webSocket: params['webSocket'] && params['webSocket'] === 'true' // defaults to true
+      });
+
       BotChat.App({
         bot: bot,
         locale: params['locale'],
         resize: 'window',
-        // sendTyping: true,    // defaults to false. set to true to send 'typing' activities to bot (and other users) when user is typing
+        sendTyping: true,    // defaults to false. set to true to send 'typing' activities to bot (and other users) when user is typing
+        speechOptions: speechOptions,
         user: user,
-
-        directLine: {
-          secret: params['s'],
-          token: params['t'],
-          domain: params['domain'],
-          webSocket: params['webSocket'] && params['webSocket'] === 'true' // defaults to true
-        }
+        botConnection: botConnection
       }, document.getElementById('BotChatGoesHere'));
     </script>
   </body>

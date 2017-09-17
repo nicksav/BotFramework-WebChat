@@ -152,11 +152,12 @@ export class Chat extends React.Component<ChatProps, {}> {
 
         // only render real stuff after we know our dimensions
         let header: JSX.Element;
+        /*
         if (state.format.options.showHeader) header =
             <div className="wc-header">
                 <span>{ state.format.strings.title }</span>
             </div>;
-
+        */
         let resize: JSX.Element;
         if (this.props.resize === 'detect') resize =
             <ResizeDetector onresize={ this.resizeListener } />;
